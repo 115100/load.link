@@ -98,7 +98,8 @@ class Content
         }
 
         $page = new Page();
-        $page->addHeader('Content-Type: ' . Utils::detectMime($file));
+        $page->addHeader('Content-Type: ' . Utils::detectMime($file,
+            pathinfo($file, PATHINFO_EXTENSION)));
         $page->addHeader('Content-Length: ' . filesize($file));
         $page->setBuffer(file_get_contents($file));
 
