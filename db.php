@@ -79,12 +79,12 @@ class DB
 
         if ($limit)
         {
-            $sth->bindParam(':limit', intval($limit), PDO::PARAM_INT);
+            $sth->bindParam(':limit', $limit, PDO::PARAM_INT);
         }
 
         if ($offset)
         {
-            $sth->bindParam(':offset', intval($offset), PDO::PARAM_INT);
+            $sth->bindParam(':offset', $offset, PDO::PARAM_INT);
         }
 
         $sth->execute();
@@ -101,11 +101,24 @@ class DB
 
     public function getThumbnail($uid)
     {
-        $sth = $this->dbh->prepare('SELECT * FROM '
+        $sth = $this->dbh->prepare('SELECT data, width, height, mime FROM '
             . $this->conf['table_prefix'] . 'thumbnails'
             . ' WHERE uid = :uid');
         $sth->execute(array(':uid' => $uid));
-        return $sth->fetch();
+        $sth->bindColumn(1, $data, PDO::PARAM_LOB);
+        $sth->bindColumn(2, $width, PDO::PARAM_INT);
+        $sth->bindColumn(3, $height, PDO::PARAM_INT);
+        $sth->bindColumn(4, $mime, PDO::PARAM_STR);
+        if (!$sth->fetch(PDO::FETCH_BOUND))
+        {
+            return false;
+        }
+        return array(
+            'data' => stream_get_contents($data),
+            'width' => $width,
+            'height' => $height,
+            'mime' => $mime,
+        );
     }
 
     protected function generateUID()
@@ -162,12 +175,12 @@ class DB
                 . $this->conf['table_prefix'] . 'thumbnails'
                 . ' (uid, data, width, height, mime)'
                 . ' VALUES (:uid, :data, :width, :height, :mime)');
-            $sth->execute(array(
-                ':uid'  => $uid,
-                ':data'  => $thumbnail['data'],
-                ':width'  => $thumbnail['width'],
-                ':height'  => $thumbnail['height'],
-                ':mime' => $thumbnail['mime']));
+            $sth->bindParam(':uid', $uid);
+            $sth->bindParam(':data', $thumbnail['data'], PDO::PARAM_LOB);
+            $sth->bindParam(':width', $thumbnail['width'], PDO::PARAM_INT);
+            $sth->bindParam(':height', $thumbnail['height'], PDO::PARAM_INT);
+            $sth->bindParam(':mime', $thumbnail['mime']);
+            $sth->execute();
         }
 
         return $uid;
@@ -302,13 +315,14 @@ class DB
                 date    ' . $date_type . ' DEFAULT CURRENT_TIMESTAMP
             );');
 
+        $data_type = ($this->conf['type'] == 'pgsql') ? 'bytea' : 'BLOB';
         $this->dbh->query('
             CREATE TABLE ' . $this->conf['table_prefix'] . 'thumbnails
             (
                 uid     VARCHAR('
                 . Config::get()->getValue('link', 'length')
                 . ') PRIMARY KEY,
-                data    BLOB,
+                data    ' . $data_type . ',
                 mime    VARCHAR(255),
                 width   INTEGER,
                 height  INTEGER
