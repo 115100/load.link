@@ -4,7 +4,6 @@
  **/
 
 /* Load libraries */
-require_once 'lib/JSqueeze/class/JSqueeze.php';
 require_once 'vendor/autoload.php';
 
 /* Autload core classes */
