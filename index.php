@@ -6,8 +6,7 @@
 /* Load libraries */
 require_once 'lib/SCSS/scss.inc.php';
 require_once 'lib/JSqueeze/class/JSqueeze.php';
-require_once 'lib/Twig/Autoloader.php';
-Twig_Autoloader::register();
+require_once 'vendor/autoload.php';
 
 /* Autload core classes */
 spl_autoload_register(function ($class_name) {

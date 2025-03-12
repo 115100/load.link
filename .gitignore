@@ -2,6 +2,7 @@ tmp/
 lib/
 themes/DarkAndDark/static/
 uploads/
+vendor/
 .cache
 .config.ini
 .config.ini.backup
