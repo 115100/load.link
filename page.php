@@ -89,14 +89,13 @@ class Page
             case 'stylesheets':
                 if (!$this->scss)
                 {
-                    $this->scss = new scssc();
+                    $this->scss = new ScssPhp\ScssPhp\Compiler();
                     $this->scss->setImportPaths(
                         Path::get('theme') . 'stylesheets/');
-                    $this->scss->setFormatter(
-                        '\Leafo\ScssPhp\Formatter\Compressed');
+                    $this->scss->setOutputStyle(
+                        \ScssPhp\ScssPhp\OutputStyle::COMPRESSED);
                 }
-                return $this->scss->compile('@import "'
-                    . basename($filename) . '";');
+                return $this->scss->compileFile($filename)->getCss();
 
             case 'scripts':
                 if (!$this->jsqueeze)
