@@ -32,7 +32,7 @@ mkdir ../icons_tmp
 cp -L * ../icons_tmp/
 cd ../icons_tmp
 rm *.icon
-rename "gnome-mime-" "" *
+rename.ul "gnome-mime-" "" *
 cd ..
 mv icons_tmp ../../../
 cd ../../..
