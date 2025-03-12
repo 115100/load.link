@@ -1,6 +1,7 @@
 {
     "require": {
         "twig/twig": "^3.0",
-        "scssphp/scssphp": "^2.0"
+        "scssphp/scssphp": "^2.0",
+        "tedivm/jshrink": "^1"
     }
 }

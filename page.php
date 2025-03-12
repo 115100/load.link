@@ -76,7 +76,6 @@ class Page
     }
 
     protected $scss;
-    protected $jsqueeze;
     protected function loadAsset($type, $filename, $function = NULL)
     {
         if ($function)
@@ -98,12 +97,7 @@ class Page
                 return $this->scss->compileFile($filename)->getCss();
 
             case 'scripts':
-                if (!$this->jsqueeze)
-                {
-                    $this->jsqueeze = new JSqueeze();
-                }
-                return $this ->jsqueeze->squeeze(
-                    file_get_contents($filename));
+                return \JShrink\Minifier::minify(file_get_contents($filename));
 
             default:
                 return file_get_contents($filename);

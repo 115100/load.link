@@ -1,22 +1,11 @@
 #!/bin/bash
 
-JSQUEEZE_VERSION="1.0.5"
 PRISMJS_VERSION="4160c577691b74223f3b5515bb920236b96a87e1"
 VIDEOJS_VERSION="4.10.2"
 FAENZA_ICONS_URL="http://slackware.uk/sbosrcarch/by-md5/e/9/e9bd6106d13017ce06d24b586259ae9c/faenza-icon-theme_1.3.zip"
 
 mkdir tmp
 cd tmp
-
-## Libraries
-
-# Twig
-git clone https://github.com/nicolas-grekas/JSqueeze.git
-cd JSqueeze
-git checkout tags/v${JSQUEEZE_VERSION}
-rm -rf .git
-cd ..
-mv JSqueeze ../lib/
 
 ## Default theme related
 
