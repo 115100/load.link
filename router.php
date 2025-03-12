@@ -48,6 +48,15 @@ class Router
         {
             $static_content = substr($route, strlen(Content::STATIC_PATH));
             $this->page = Content::getStaticPage($static_content);
+            switch (pathinfo($static_content, PATHINFO_EXTENSION))
+            {
+                case 'css':
+                    $this->page->addHeader('Content-Type: text/css');
+                    break;
+                case 'js':
+                    $this->page->addHeader('Content-Type: text/javascript');
+                    break;
+            }
             return;
         }
 
