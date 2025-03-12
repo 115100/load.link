@@ -5,6 +5,11 @@ MAIN > DIV {
         box-sizing: content-box;
     }
     width: 800px;
+    &.player {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     &.video {
         margin-top: 20px;
         height: 600px;
