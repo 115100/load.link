@@ -225,9 +225,9 @@ class Page
                 $this->cache->flush();
             }
 
-            $twig_loader = new Twig_Loader_Filesystem();
+            $twig_loader = new Twig\Loader\FilesystemLoader();
             $twig_loader->addPath(Path::get('theme') . 'templates/');
-            $twig = new Twig_Environment($twig_loader);
+            $twig = new \Twig\Environment($twig_loader);
             $this->setBuffer($twig->render($this->template
                 . '.' . self::$extensions['templates'], $this->elements));
         }

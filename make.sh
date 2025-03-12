@@ -1,6 +1,5 @@
 #!/bin/bash
 
-TWIG_VERSION="1.16.2"
 SCSS_VERSION="0.1.1"
 JSQUEEZE_VERSION="1.0.5"
 PRISMJS_VERSION="4160c577691b74223f3b5515bb920236b96a87e1"
@@ -11,13 +10,6 @@ mkdir tmp
 cd tmp
 
 ## Libraries
-
-# Twig
-git clone git://github.com/twigphp/Twig.git
-cd Twig
-git checkout tags/v${TWIG_VERSION}
-mv lib/Twig ../../lib/
-cd ..
 
 # SCSS
 git clone git://github.com/leafo/scssphp.git
