@@ -9,7 +9,7 @@
 
 {% block body %}
 <main>
-	<pre id="h" class="line-numbers language-{{ language }}"{% if language != 'none' %} style="padding-left: 100px;"{% endif %} data-line="0"><code class="language-{{ language }}">{{ text }}</code></pre>
+	<pre id="h" class="line-numbers linkable-line-numbers language-{{ language }}"><code class="language-{{ language }}">{{ text }}</code></pre>
 </main>
 <footer>
 	<a href="{{ raw_url }}">RAW</a>
