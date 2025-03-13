@@ -7,4 +7,5 @@ vendor/
 .config.ini
 .config.ini.backup
 .db.sqlite
+favicon.ico
 make.sh
