@@ -1,7 +1,7 @@
 {
 	"panel": [ "message_popup", "forms", "hideables",
-		"refresh", "bytes_to_hr", "faenzaicons" ],
-	"gallery": [ "message_popup", "faenzaicons", "refresh" ],
+		"refresh", "bytes_to_hr", "delfticons" ],
+	"gallery": [ "message_popup", "delfticons", "refresh" ],
 	"installer": [ "hideables" ],
 	"message": [ "refresh" ]
 }
