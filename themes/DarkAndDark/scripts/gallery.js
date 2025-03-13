@@ -102,13 +102,13 @@ function generate_item_content(uid, name, mime, ext, thumbnail)
 	}
 	else
 	{
-		icon = mime.replace('/', '-') + '.png';
-		if (faenzaicons.indexOf(icon) < 0)
+		icon = mime.replace('/', '-') + '.svg';
+		if (delfticons.indexOf(icon) < 0)
 		{
-			icon = (mime.startsWith('video/')) ? 'video-x-generic.png'
-				: 'none.png';
+			icon = (mime.startsWith('video/')) ? 'video-x-generic.svg'
+				: 'none.svg';
 		}
-		src = baseroute + 'static/faenzaicons/' + icon;
+		src = baseroute + 'static/delfticons/' + icon;
 		width = height = 96;
 	}
 

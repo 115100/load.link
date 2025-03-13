@@ -24,13 +24,13 @@ function uploadMessage(response, text)
 	if ([ 'image/jpeg', 'image/png', 'image/gif'
 		].indexOf(response.mime) == -1)
 	{
-		icon = response.mime.replace('/', '-') + '.png';
-		if (faenzaicons.indexOf(icon) < 0)
+		icon = response.mime.replace('/', '-') + '.svg';
+		if (delfticons.indexOf(icon) < 0)
 		{
-			icon = (response.mime.startsWith('video/')) ? 'video-x-generic.png'
-				: 'none.png';
+			icon = (response.mime.startsWith('video/')) ? 'video-x-generic.svg'
+				: 'none.svg';
 		}
-		src = baseroute + 'static/faenzaicons/' + icon;
+		src = baseroute + 'static/delfticons/' + icon;
 		width = height = 96;
 
 		setMessage('notice', text + '<br>'
