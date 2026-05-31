@@ -69,6 +69,7 @@ func New(cfg *config.Config, database *db.DB, uploadDir, configPath string) (*Ha
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/theme.css", h.handleThemeCSS)
 	mux.HandleFunc("/theme.js", h.handleThemeJS)
+	mux.HandleFunc("/favicon.ico", h.handleFavicon)
 
 	if h.cfg == nil {
 		mux.HandleFunc("/", h.handleInstaller)
@@ -339,6 +340,17 @@ func (h *Handler) handleStatic(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Cache-Control", "public, max-age=86400")
 	http.ServeContent(w, r, path, time.Now(), bytes.NewReader(data))
+}
+
+func (h *Handler) handleFavicon(w http.ResponseWriter, r *http.Request) {
+	data, err := os.ReadFile("favicon.ico")
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "image/x-icon")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	http.ServeContent(w, r, "favicon.ico", time.Now(), bytes.NewReader(data))
 }
 
 func (h *Handler) handleThemeCSS(w http.ResponseWriter, r *http.Request) {
