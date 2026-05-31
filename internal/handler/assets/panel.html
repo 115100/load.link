@@ -1,0 +1,107 @@
+
+<div id="message" class="message hidden">
+	<div id="message_closebutton" class="closebutton"></div>
+	<div id="message_content"></div>
+	<div id="message_refresh_button" class="hidden">
+		<br><a href="javascript: refresh();">Refresh</a>
+	</div>
+</div>
+<div>
+	<h3>Upload</h3>
+	<form id="uploader_form" method="post" action="{{.api}}" enctype="multipart/form-data">
+		<div class="uploader" id="uploader_container">
+			<div class="progress" id="uploader_progress" style="display: none;">
+				<div class="name" id="progress_filename"></div>
+				<progress id="progress_bar"></progress>
+				<table>
+					<tr><td>Progress</td><td id="progress_percent"></td></tr>
+					<tr><td>Sent</td><td id="progress_sent"></td></tr>
+					<tr><td>Total</td><td id="progress_total"></td></tr>
+				</table>
+			</div>
+			<div id="uploader_box">
+				<div id="uploader_path" class="path">{{.default_uploader_text}}</div>
+				<input id="uploader_file" type="file" name="data" multiple>
+			</div>
+		</div>
+		<div class="center"{{if .config.ui.autostart_upload}} style="display: none;"{{end}}>
+			<button id="uploader_button" type="submit">Upload</button>
+		</div>
+	</form>
+</div>
+<div class="hideable hidden">
+	<h3 class="hider">Paste</h3>
+	<form id="paste_form" method="post" action="{{.api}}" enctype="multipart/form-data">
+		<textarea id="paste_text" name="text" placeholder="Paste your text here..."></textarea>
+		<div style="display:flex;gap:8px;">
+			<input id="paste_name" type="text" name="name" placeholder="Name" style="flex:1;margin-bottom:0">
+			<select id="paste_language" name="language" style="flex:1;margin-bottom:0">
+				<option value="txt" disabled selected>Language</option>
+{{range $name, $lang := .languages}}
+				<option value="{{$lang.ext}}">{{$lang.name}}</option>
+{{end}}
+			</select>
+		</div>
+		<div style="display:flex;gap:8px;margin-top:12px">
+			<button type="submit" style="flex:1">Paste</button>
+			<button type="reset" style="flex:1">Clear</button>
+		</div>
+	</form>
+</div>
+<div class="hideable hidden">
+	<h3 class="hider">Shorten URL</h3>
+	<form id="urlshortener_form" method="post" action="{{.api}}" enctype="multipart/form-data">
+		<input name="url" type="url" placeholder="https://example.com/very-long-url..." style="width: 100%;">
+		<div class="center" style="margin-top: 12px;"><button type="submit">Shorten</button></div>
+	</form>
+</div>
+<div class="hideable hidden">
+	<h3 class="hider">History</h3>
+	<ul id="link_history" data-api="{{.api}}" data-length="{{.config.ui.history_length}}"></ul>
+	<div class="center" style="margin-top: 12px;">
+		<a href="{{.gallery_path}}">Gallery</a> &middot; <a href="javascript: prune_unused();">Prune unused</a>
+	</div>
+</div>
+<div class="hideable hidden">
+	<h3 class="hider">Settings</h3>
+	<form id="settings_form" method="post" action="{{.api}}" enctype="multipart/form-data">
+		<label><select name="ui[syntax_highlighter]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.ui.syntax_highlighter}} selected{{end}}>YES</option>
+		</select> Syntax highlighter</label>
+		<label><select name="ui[media_player]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.ui.media_player}} selected{{end}}>YES</option>
+		</select> Media player</label>
+		<label><select name="link[show_extension]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.link.show_extension}} selected{{end}}>YES</option>
+		</select> Show file extension in URL</label>
+		<label><select name="ui[autostart_upload]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.ui.autostart_upload}} selected{{end}}>YES</option>
+		</select> Auto-start upload</label>
+		<label><select name="ui[display_thumbnail]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.ui.display_thumbnail}} selected{{end}}>YES</option>
+		</select> Display thumbnail after upload</label>
+		<label><select name="ui[deletion_confirmation]" class="boolean">
+			<option value="false">NO</option>
+			<option value="true"{{if $.config.ui.deletion_confirmation}} selected{{end}}>YES</option>
+		</select> Deletion confirmation</label>
+		<label><input name="ui[history_length]" type="number" value="{{.config.ui.history_length}}" required> History length</label>
+		<label><input name="ui[gallery_items]" type="number" value="{{.config.ui.gallery_items}}" placeholder="0 = all"> Gallery items per page</label>
+		<label><input name="ui[message_timeout]" type="number" value="{{.config.ui.message_timeout}}" placeholder="0 = never"> Message timeout (ms)</label>
+		<label><input name="login[username]" type="text" value="{{.config.login.username}}" required> Username</label>
+		<label><input name="login[password]" type="password" placeholder="Leave blank to keep current"> Password</label>
+		<label><input name="current_password" type="password" required> <b>Current password</b></label>
+		<div class="center"><button type="submit">Apply</button></div>
+	</form>
+</div>
+<div class="hideable hidden">
+	<h3 class="hider">Logout</h3>
+	<form method="post" action="{{.logout_path}}">
+		<label style="justify-content: center;"><input type="checkbox" name="purge"> Purge all active sessions</label>
+		<div class="center"><button type="submit">Logout</button></div>
+	</form>
+</div>

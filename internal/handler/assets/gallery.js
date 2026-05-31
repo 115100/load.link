@@ -1,0 +1,203 @@
+var gallery = document.getElementById("gallery");
+
+if (gallery) {
+  var gallery_total = document.getElementById("gallery_total");
+  var gallery_pages = document.getElementById("gallery_pages");
+  var gallery_count = 0;
+  var gallery_offset = 0;
+  var gallery_loading = false;
+  var gallery_done = false;
+  var gallery_cur_page = 1;
+  var registered = [];
+
+  function api_call(action, params, cb) {
+    params.action = action;
+    var d = new FormData();
+    d.append(
+      "headers",
+      new Blob([JSON.stringify(params)], { type: "application/json" }),
+    );
+    var x = new XMLHttpRequest();
+    x.open("POST", api, true);
+    x.onload = function () {
+      if (x.status === 200) cb(JSON.parse(x.response));
+    };
+    x.send(d);
+  }
+
+  function load_more() {
+    if (gallery_loading || gallery_done) return;
+    gallery_loading = true;
+
+    api_call(
+      "get_links",
+      { token: token, limit: gallery_limit, offset: gallery_offset },
+      function (resp) {
+        gallery_loading = false;
+        if (!resp.links || !resp.links.length) {
+          gallery_done = true;
+          return;
+        }
+
+        gallery_cur_page = Math.floor(gallery_offset / gallery_limit) + 1;
+        var latest = resp.links[0].date ? resp.links[0].date.slice(0, 10) : "";
+        gallery.insertAdjacentHTML(
+          "beforeend",
+          '<div class="gallery-page-marker" style="grid-column:1/-1;text-align:center;padding:6px 0;color:var(--text-muted);font-size:0.8rem">Page ' +
+            gallery_cur_page +
+            " &mdash; " +
+            latest +
+            "</div>",
+        );
+
+        resp.links.forEach(function (item) {
+          var el = document.createElement("div");
+          el.className = "gallery item";
+          el.setAttribute("data-uid", item.uid);
+          el.setAttribute("data-name", item.name);
+          el.setAttribute("data-mime", item.mime);
+          el.setAttribute("data-ext", item.ext);
+          gallery.appendChild(el);
+          build_item(el, item);
+        });
+        gallery_offset += resp.links.length;
+        if (gallery_offset >= gallery_count) gallery_done = true;
+        render_pages();
+      },
+    );
+  }
+
+  function go_to_page(page) {
+    gallery_cur_page = page;
+    gallery_offset = (page - 1) * gallery_limit;
+    gallery.innerHTML = "";
+    gallery_done = false;
+    gallery_loading = false;
+    registered = [];
+    render_pages();
+    load_more();
+    window.scrollTo(0, 0);
+  }
+
+  function render_pages() {
+    if (gallery_count <= gallery_limit) {
+      gallery_pages.style.display = "none";
+      return;
+    }
+    gallery_pages.style.display = "block";
+    var total = Math.ceil(gallery_count / gallery_limit);
+    var cur = gallery_cur_page;
+    var h = "";
+    if (cur > 1)
+      h +=
+        '<a href="#" onclick="go_to_page(' +
+        (cur - 1) +
+        ');return false">&laquo; Prev</a> ';
+    h +=
+      'Page <input type="number" min="1" max="' +
+      total +
+      '" value="' +
+      cur +
+      '" style="width:50px;text-align:center;padding:4px" onkeydown="if(event.key===\'Enter\'){var p=parseInt(this.value);if(p>=1&&p<=' +
+      total +
+      ')go_to_page(p)}"> of ' +
+      total;
+    if (cur < total)
+      h +=
+        ' <a href="#" onclick="go_to_page(' +
+        (cur + 1) +
+        ');return false">Next &raquo;</a>';
+    gallery_pages.innerHTML = h;
+  }
+
+  function build_item(el, item) {
+    if (registered.indexOf(item.uid) > -1) return;
+    registered.push(item.uid);
+
+    // Delete button
+    var cb = document.createElement("div");
+    cb.className = "gallery closebutton";
+    cb.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (deletion_confirmation && !confirm('Delete "' + item.name + '"?'))
+        return;
+      api_call("delete", { token: token, uid: item.uid }, function () {
+        el.style.display = "none";
+        api_call("count", { token: token }, function (resp) {
+          gallery_total.innerHTML = gallery_count = resp.count;
+          render_pages();
+        });
+      });
+    });
+    el.appendChild(cb);
+
+    // Thumbnail or icon
+    if (["image/jpeg", "image/png", "image/gif"].indexOf(item.mime) >= 0) {
+      api_call(
+        "get_thumbnail",
+        { token: token, uid: item.uid },
+        function (resp) {
+          el.insertAdjacentHTML("beforeend", item_html(item, resp));
+        },
+      );
+    } else {
+      el.insertAdjacentHTML("beforeend", item_html(item));
+    }
+  }
+
+  function item_html(item, thumb) {
+    var src, w, h;
+    if (thumb) {
+      src = "data:" + thumb.mime + ";base64," + thumb.data;
+      w = thumb.width;
+      h = thumb.height;
+    } else {
+      var icon = item.mime.replace("/", "-") + ".svg";
+      if (delfticons.indexOf(icon) < 0)
+        icon =
+          (item.mime.indexOf("video/") === 0 ? "video-x-generic" : "none") +
+          ".svg";
+      src = baseroute + "static/delfticons/" + icon;
+      w = h = 96;
+    }
+    return (
+      '<div class="thumbnail"><a href="' +
+      baseroute +
+      item.uid +
+      (show_extension ? "." + item.ext : "") +
+      '" title="' +
+      item.name +
+      " (" +
+      item.mime +
+      ')" target="_blank">' +
+      '<img width="' +
+      w +
+      '" height="' +
+      h +
+      '" src="' +
+      src +
+      '" alt="' +
+      item.mime +
+      '"></a></div>'
+    );
+  }
+
+  // Bootstrap
+  api_call("count", { token: token }, function (resp) {
+    gallery_total.innerHTML = gallery_count = resp.count;
+    render_pages();
+    load_more();
+  });
+
+  // Infinite scroll
+  window.addEventListener("scroll", function () {
+    if (!gallery_loading && !gallery_done) {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.offsetHeight - 400
+      ) {
+        load_more();
+      }
+    }
+  });
+}

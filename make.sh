@@ -8,7 +8,7 @@ cd tmp
 
 ## Default theme related
 
-THEME_STATIC_PATH=../themes/DarkAndDark/static
+THEME_STATIC_PATH=../internal/handler/assets
 
 # prism.js (Syntax Highlighter)
 mkdir ${THEME_STATIC_PATH}/prismjs
@@ -20,7 +20,7 @@ cat components/prism-{core,clike,markup,javascript,bash,c,coffeescript,cpp,cshar
 cd ..
 
 # iconpack-delft
-mkdir ${THEME_STATIC_PATH}/delficons
+mkdir ${THEME_STATIC_PATH}/delfticons
 git clone https://github.com/madmaxms/iconpack-delft.git
 cd iconpack-delft
 git checkout ${DELFT_VERSION}

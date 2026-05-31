@@ -1,11 +1,13 @@
 tmp/
 lib/
-themes/DarkAndDark/static/
+internal/handler/assets/delfticons/
+internal/handler/assets/prismjs/
 uploads/
 vendor/
 .cache
 .config.ini
 .config.ini.backup
+.config.toml
 .db.sqlite
 favicon.ico
 make.sh

@@ -1,0 +1,39 @@
+{{if .Error}}<div class="message error warning"><b>Error:</b> {{.Error}}<br><br><a href="javascript:document.location.reload(true);">Reload</a></div>{{end}}
+{{if .Success}}<div class="message notice"><b>Installed. Redirecting...</b><br><br><a href="{{.PanelPath}}">Click here if not redirected.</a></div>{{end}}
+
+<form method="post" action=""{{if .Success}} style="display: none;"{{end}}>
+    <div class="hideable hidden">
+        <h3 class="hider">Advanced Configuration</h3>
+        <div>
+            <input name="uuid" type="hidden" value="{{.UUID}}">
+            <label><select name="database[type]" id="database_type">{{.DBTypes}}</select> Database type.</label><br>
+            <label><input name="database[name]" type="text" id="database_name" value="{{index .Config "database" "name"}}"> Database name.</label><br>
+            <div id="database_conf" style="display: none">
+                <label><input name="database[host]" type="text" value="{{index .Config "database" "host"}}"> Database host.</label><br>
+                <label><input name="database[port]" type="number" placeholder="default" value="{{index .Config "database" "port"}}"> Database port.</label><br>
+                <label><input name="database[username]" type="text" value="{{index .Config "database" "username"}}"> Database username.</label><br>
+                <label><input name="database[password]" type="password" value="{{index .Config "database" "password"}}"> Database password.</label><br>
+            </div>
+            <br>
+            <label><input name="link[upload_dir]" type="text" value="{{.UploadDir}}"> Upload directory.</label><br>
+            <br>
+            <label><input name="link[length]" type="number" value="{{index .Config "link" "length"}}"> Link length.</label><br>
+            <label><input name="link[characters]" type="text" value="{{index .Config "link" "characters"}}"> Link characters.</label><br>
+            <br>
+            <label><select name="routing[mode]" id="routing_mode">{{.RouteModes}}</select> Routing mode.</label><br>
+            <div id="routing_conf">
+                <label><input name="routing[baseurl]" type="text" value="{{index .Config "routing" "baseurl"}}"> BaseURL.</label><br>
+            </div>
+            <br>
+        </div>
+    </div>
+    <div>
+        <h3>Login Data</h3>
+        <label><input name="login[username]" type="text" value="{{index .Config "login" "username"}}"> Username.</label><br>
+        <label><input name="login[password]" type="password"> Password.</label><br>
+        <br>
+        <div class="center">
+            <button type="submit">Install</button>
+        </div>
+    </div>
+</form>

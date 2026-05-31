@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>load.link{{if .title}} :: {{.title}}{{end}}</title>
+{{.redirectMeta}}
+<link href="{{.baseurl}}theme.css" rel="stylesheet">
+</head>
+<body>
+<header>
+<a href="/">load<em>link</em></a>
+</header>
+{{.body}}
+<script src="{{.baseurl}}theme.js"></script>
+</body>
+</html>
