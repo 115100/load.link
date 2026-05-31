@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/BurntSushi/toml"
@@ -165,146 +164,6 @@ func (c *Config) Save(path string) error {
 		return err
 	}
 	return os.WriteFile(path, data, 0600)
-}
-
-func MaybeMigrateINI(tomlPath string) (string, error) {
-	if _, err := os.Stat(tomlPath); err == nil {
-		return tomlPath, nil
-	}
-
-	iniPath := strings.Replace(tomlPath, ".toml", ".ini", 1)
-	if _, err := os.Stat(iniPath); err != nil {
-		return tomlPath, nil
-	}
-	data, err := os.ReadFile(iniPath)
-	if err != nil {
-		return tomlPath, nil
-	}
-	c := loadINI(string(data))
-	if err := c.Save(tomlPath); err != nil {
-		return tomlPath, fmt.Errorf("migrating INI: %w", err)
-	}
-	return tomlPath, nil
-}
-
-func loadINI(data string) *Config {
-	c := Default()
-	ini := make(map[string]map[string]string)
-
-	var section string
-	for line := range strings.SplitSeq(data, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, ";") {
-			continue
-		}
-		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
-			section = line[1 : len(line)-1]
-			if ini[section] == nil {
-				ini[section] = make(map[string]string)
-			}
-			continue
-		}
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		key := strings.TrimSpace(parts[0])
-		value := strings.Trim(strings.TrimSpace(parts[1]), `"`)
-		if ini[section] == nil {
-			ini[section] = make(map[string]string)
-		}
-		ini[section][key] = value
-	}
-
-	applyINITo(c, ini)
-	return c
-}
-
-func applyINITo(c *Config, ini map[string]map[string]string) {
-	// Apply each known section / key to the typed struct.
-	for section, keys := range ini {
-		switch section {
-		case "database":
-			for k, v := range keys {
-				switch k {
-				case "type":
-					c.Database.Type = v
-				case "name":
-					c.Database.Name = v
-				case "host":
-					c.Database.Host = v
-				case "port":
-					c.Database.Port = v
-				case "username":
-					c.Database.Username = v
-				case "password":
-					c.Database.Password = v
-				}
-			}
-		case "link":
-			for k, v := range keys {
-				switch k {
-				case "characters":
-					c.Link.Characters = v
-				case "length":
-					c.Link.Length = atoiOr(v, 8)
-				case "upload_dir":
-					c.Link.UploadDir = v
-				case "same_name_suffix":
-					c.Link.SameNameSuffix = v
-				case "show_extension":
-					c.Link.ShowExtension = strings.EqualFold(v, "true")
-				}
-			}
-		case "ui":
-			for k, v := range keys {
-				switch k {
-				case "wait_time":
-					c.UI.WaitTime = atoiOr(v, 3)
-				case "history_length":
-					c.UI.HistoryLength = atoiOr(v, 10)
-				case "autostart_upload":
-					c.UI.AutostartUpload = strings.EqualFold(v, "true")
-				case "display_thumbnail":
-					c.UI.DisplayThumbnail = strings.EqualFold(v, "true")
-				case "syntax_highlighter":
-					c.UI.SyntaxHighlighter = strings.EqualFold(v, "true")
-				case "media_player":
-					c.UI.MediaPlayer = strings.EqualFold(v, "true")
-				case "message_timeout":
-					c.UI.MessageTimeout = atoiOr(v, 10000)
-				case "deletion_confirmation":
-					c.UI.DeletionConfirmation = strings.EqualFold(v, "true")
-				case "gallery_items":
-					c.UI.GalleryItems = atoiOr(v, 30)
-				}
-			}
-		case "routing":
-			for k, v := range keys {
-				switch k {
-				case "mode":
-					c.Routing.Mode = v
-				case "baseurl":
-					c.Routing.BaseURL = v
-				case "panel":
-					c.Routing.Panel = v
-				case "homepage":
-					c.Routing.Homepage = v
-				}
-			}
-		case "login":
-			for k, v := range keys {
-				switch k {
-				case "username":
-					c.Login.Username = v
-				case "password":
-					c.Login.Password = v
-				case "salt":
-					c.Login.Salt = v
-				}
-			}
-		}
-	}
 }
 
 func (c *Config) SetPassword(password string) {
@@ -487,18 +346,4 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("you must choose a username")
 	}
 	return nil
-}
-
-func atoiOr(s string, fallback int) int {
-	if s == "" {
-		return fallback
-	}
-	var n int
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			return fallback
-		}
-		n = n*10 + int(c-'0')
-	}
-	return n
 }

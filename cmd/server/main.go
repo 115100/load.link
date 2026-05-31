@@ -29,13 +29,8 @@ func main() {
 }
 
 func run(addr, configPath string) error {
-	cfgPath, err := config.MaybeMigrateINI(configPath)
-	if err != nil {
-		return err
-	}
-
 	var h *handler.Handler
-	if _, err := os.Stat(cfgPath); err != nil {
+	if _, err := os.Stat(configPath); err != nil {
 		if !os.IsNotExist(err) {
 			return err
 		}
@@ -45,7 +40,7 @@ func run(addr, configPath string) error {
 			return err
 		}
 	} else {
-		cfg, err := config.Load(cfgPath)
+		cfg, err := config.Load(configPath)
 		if err != nil {
 			return err
 		}
