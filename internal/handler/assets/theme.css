@@ -545,17 +545,16 @@ footer span {
 }
 
 /* Media player */
-main > .player {
+main.player-page {
+    max-width: 900px;
+}
+main > div.player {
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 1250px;
-    width: 95%;
-    margin: 20px auto;
 }
 .player video {
     max-width: 100%;
-    border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
 }
 .player audio {
