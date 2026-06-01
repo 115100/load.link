@@ -274,6 +274,7 @@ func (h *Handler) handleContent(w http.ResponseWriter, r *http.Request) {
 			}
 			h.renderPage(w, "syntax_highlighter", map[string]any{
 					"static_path": h.cfg.Routing.BaseURL + "static/",
+					"title":       link.Name,
 					"name":        link.Name,
 					"text":        string(content),
 					"language":    mimeutil.GetLanguageFromExtension(ext),
@@ -286,11 +287,11 @@ func (h *Handler) handleContent(w http.ResponseWriter, r *http.Request) {
 	if h.cfg.UI.MediaPlayer && mimeutil.IsAudioVideo(link.Mime) {
 		mediaType := strings.SplitN(link.Mime, "/", 2)[0]
 		h.renderPage(w, "media_player", map[string]any{
-			"static_path": h.cfg.Routing.BaseURL + "static/",
-			"type":        mediaType,
-			"name":        link.Name,
-			"mime":        link.Mime,
-			"raw_url":     h.rawPath(uid),
+			"title": link.Name,
+			"type":  mediaType,
+			"name":  link.Name,
+			"mime":  link.Mime,
+			"raw_url": h.rawPath(uid),
 		})
 		return
 	}
