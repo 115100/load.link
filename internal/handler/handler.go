@@ -64,8 +64,6 @@ func New(cfg *config.Config, database *db.DB, uploadDir, configPath string) (*Ha
 	return h, nil
 }
 
-
-
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/theme.css", h.handleThemeCSS)
 	mux.HandleFunc("/theme.js", h.handleThemeJS)
@@ -82,8 +80,6 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/static/", h.handleStatic)
 	mux.HandleFunc("/", h.handleContent)
 }
-
-
 
 func (h *Handler) baseURL(r *http.Request) string {
 	scheme := "http"
@@ -134,8 +130,6 @@ func (h *Handler) rawPath(uid string) string {
 	return base + uid + ".raw"
 }
 
-
-
 func (h *Handler) validSession(token string) bool {
 	valid, _ := h.db.GetSession(token)
 	return valid
@@ -152,8 +146,6 @@ func (h *Handler) getTokenFromRequest(r *http.Request) string {
 	}
 	return ""
 }
-
-
 
 func (h *Handler) saveUpload(tmpPath, filename string) (string, error) {
 	destPath := filepath.Join(h.uploadDir, filename)
@@ -189,8 +181,6 @@ func (h *Handler) saveUpload(tmpPath, filename string) (string, error) {
 	return destPath, nil
 }
 
-
-
 func (h *Handler) jsonResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -213,8 +203,6 @@ func (h *Handler) renderError(w http.ResponseWriter, status int, title, name str
 		"title": title, "name": name, "message": title, "refreshable": false,
 	})
 }
-
-
 
 func (h *Handler) handleContent(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, h.cfg.Routing.BaseURL)
@@ -286,13 +274,13 @@ func (h *Handler) handleContent(w http.ResponseWriter, r *http.Request) {
 				content = []byte{}
 			}
 			h.renderPage(w, "syntax_highlighter", map[string]any{
-					"static_path": h.cfg.Routing.BaseURL + "static/",
-					"title":       link.Name,
-					"name":        link.Name,
-					"text":        string(content),
-					"language":    mimeutil.GetLanguageFromExtension(ext),
-					"raw_url":     h.rawPath(uid),
-				})
+				"static_path": h.cfg.Routing.BaseURL + "static/",
+				"title":       link.Name,
+				"name":        link.Name,
+				"text":        string(content),
+				"language":    mimeutil.GetLanguageFromExtension(ext),
+				"raw_url":     h.rawPath(uid),
+			})
 			return
 		}
 	}
@@ -300,10 +288,10 @@ func (h *Handler) handleContent(w http.ResponseWriter, r *http.Request) {
 	if h.cfg.UI.MediaPlayer && mimeutil.IsAudioVideo(link.Mime) {
 		mediaType := strings.SplitN(link.Mime, "/", 2)[0]
 		h.renderPage(w, "media_player", map[string]any{
-			"title": link.Name,
-			"type":  mediaType,
-			"name":  link.Name,
-			"mime":  link.Mime,
+			"title":   link.Name,
+			"type":    mediaType,
+			"name":    link.Name,
+			"mime":    link.Mime,
 			"raw_url": h.rawPath(uid),
 		})
 		return
@@ -333,8 +321,6 @@ func (h *Handler) serveFile(w http.ResponseWriter, r *http.Request, link *db.Lin
 	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", link.Name))
 	http.ServeContent(w, r, link.Name, modTime, file)
 }
-
-
 
 func (h *Handler) handleStatic(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, h.cfg.Routing.BaseURL+"static/")
@@ -440,8 +426,6 @@ func (h *Handler) handleThemeJS(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(minified)
 }
-
-
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -584,8 +568,6 @@ func (h *Handler) handleGallery(w http.ResponseWriter, r *http.Request) {
 		"config":    h.cfg.GetAll(),
 	})
 }
-
-
 
 func (h *Handler) initTemplates() error {
 	h.templates = make(map[string]*template.Template)

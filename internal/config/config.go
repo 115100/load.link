@@ -207,11 +207,11 @@ func (c *Config) GetAll() map[string]map[string]any {
 			"password": c.Database.Password,
 		},
 		"link": {
-			"characters":      c.Link.Characters,
-			"length":          c.Link.Length,
-			"upload_dir":      c.Link.UploadDir,
+			"characters":       c.Link.Characters,
+			"length":           c.Link.Length,
+			"upload_dir":       c.Link.UploadDir,
 			"same_name_suffix": c.Link.SameNameSuffix,
-			"show_extension":  c.Link.ShowExtension,
+			"show_extension":   c.Link.ShowExtension,
 		},
 		"ui": {
 			"wait_time":             c.UI.WaitTime,
