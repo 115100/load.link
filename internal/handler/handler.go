@@ -86,13 +86,26 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
 
 func (h *Handler) baseURL(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
+		scheme = proto
+	}
+
+	host := r.Host
+	if fwdHost := r.Header.Get("X-Forwarded-Host"); fwdHost != "" {
+		host = fwdHost
+	}
+
 	u := &url.URL{
-		Scheme: "http",
-		Host:   r.Host,
+		Scheme: scheme,
+		Host:   host,
 		Path:   h.cfg.Routing.BaseURL,
 	}
-	if r.TLS != nil {
-		u.Scheme = "https"
+	if !strings.HasPrefix(u.Path, "/") {
+		u.Path = "/" + u.Path
 	}
 	if !strings.HasSuffix(u.Path, "/") {
 		u.Path += "/"
