@@ -47,7 +47,7 @@ type Handler struct {
 	uploadDir         string
 	configPath        string
 	templates         map[string]*template.Template
-	installerSessions map[string]bool
+	installerSessions map[string]struct{}
 }
 
 func New(cfg *config.Config, database *db.DB, uploadDir, configPath string) (*Handler, error) {
@@ -56,7 +56,7 @@ func New(cfg *config.Config, database *db.DB, uploadDir, configPath string) (*Ha
 		db:                database,
 		uploadDir:         uploadDir,
 		configPath:        configPath,
-		installerSessions: make(map[string]bool),
+		installerSessions: make(map[string]struct{}),
 	}
 	if err := h.initTemplates(); err != nil {
 		return nil, err

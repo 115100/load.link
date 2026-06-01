@@ -39,7 +39,7 @@ func (h *Handler) handleInstaller(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) showInstaller(w http.ResponseWriter) {
 	id := uuid.Must(uuid.NewV7()).String()
-	h.installerSessions[id] = true
+	h.installerSessions[id] = struct{}{}
 
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	installerTmpl.ExecuteTemplate(w, "installer_base.html", map[string]any{
@@ -60,7 +60,8 @@ func (h *Handler) processInstaller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID := r.FormValue("uuid")
-	if sessionID == "" || !h.installerSessions[sessionID] {
+	_, ok := h.installerSessions[sessionID]
+	if sessionID == "" || !ok {
 		http.Error(w, "Session expired", http.StatusBadRequest)
 		return
 	}
