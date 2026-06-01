@@ -113,7 +113,11 @@ func (h *Handler) tryAlternativeUpload(w http.ResponseWriter, r *http.Request) b
 	}
 	tmpFile.Close()
 
-	mime := mimeutil.DetectMime([]byte{}, filepath.Ext(header.Filename))
+	data, _ := os.ReadFile(tmpFile.Name())
+	if len(data) > 512 {
+		data = data[:512]
+	}
+	mime := mimeutil.DetectMime(data, filepath.Ext(header.Filename))
 
 	uploadPath, err := h.saveUpload(tmpFile.Name(), header.Filename)
 	if err != nil {
