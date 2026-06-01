@@ -146,7 +146,12 @@ func (h *Handler) auth(w http.ResponseWriter, token string) bool {
 		h.jsonResponse(w, http.StatusForbidden, map[string]string{"message": "Access Denied."})
 		return false
 	}
-	valid, _ := h.db.GetSession(token)
+	valid, err := h.db.GetSession(token)
+	if err != nil {
+		slog.Warn("session lookup failed", "error", err)
+		h.jsonResponse(w, http.StatusForbidden, map[string]string{"message": "Access Denied."})
+		return false
+	}
 	if !valid {
 		h.jsonResponse(w, http.StatusForbidden, map[string]string{"message": "Access Denied."})
 		return false

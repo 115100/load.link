@@ -131,7 +131,11 @@ func (h *Handler) rawPath(uid string) string {
 }
 
 func (h *Handler) validSession(token string) bool {
-	valid, _ := h.db.GetSession(token)
+	valid, err := h.db.GetSession(token)
+	if err != nil {
+		slog.Warn("session lookup failed", "error", err)
+		return false
+	}
 	return valid
 }
 
@@ -184,7 +188,9 @@ func (h *Handler) saveUpload(tmpPath, filename string) (string, error) {
 func (h *Handler) jsonResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		slog.Warn("json encode failed", "error", err)
+	}
 }
 
 func (h *Handler) jsonError(w http.ResponseWriter, status int, message string) {
@@ -437,12 +443,20 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		r.ParseForm()
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
 		username := r.FormValue("login[username]")
 		password := r.FormValue("login[password]")
 
 		if username == h.cfg.Login.Username && h.cfg.CheckPassword(password) {
-			token, _ := h.db.AddSession()
+			token, err := h.db.AddSession()
+			if err != nil {
+				slog.Error("session creation failed", "error", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 			http.SetCookie(w, &http.Cookie{
 				Name: "token", Value: token, Path: "/",
 				MaxAge: 31536000, HttpOnly: true,
@@ -470,7 +484,10 @@ func (h *Handler) handleLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 	purge := r.FormValue("purge") == "on"
 
 	if cookie, err := r.Cookie("token"); err == nil {
