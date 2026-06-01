@@ -41,11 +41,17 @@ func (h *Handler) showInstaller(w http.ResponseWriter) {
 	id := uuid.Must(uuid.NewV7()).String()
 	h.installerSessions[id] = struct{}{}
 
+	uploadDir, err := AbsUploadDir("uploads/")
+	if err != nil {
+		slog.Warn("abs upload dir failed", "error", err)
+		uploadDir = "uploads/"
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	installerTmpl.ExecuteTemplate(w, "installer_base.html", map[string]any{
 		"UUID":       id,
 		"Config":     config.Default().GetAll(),
-		"UploadDir":  absUploadDir("uploads/"),
+		"UploadDir":  uploadDir,
 		"DBTypes":    dbTypeOptions("sqlite"),
 		"RouteModes": routeModeOptions("path"),
 		"Error":      "",
@@ -124,7 +130,12 @@ func (h *Handler) processInstaller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uploadDir := absUploadDir(cfg.Link.UploadDir)
+	uploadDir, err := AbsUploadDir(cfg.Link.UploadDir)
+	if err != nil {
+		database.Close()
+		h.renderInstallerError(w, "Failed to resolve upload directory: "+err.Error())
+		return
+	}
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		database.Close()
 		h.renderInstallerError(w, "Failed to create upload directory: "+err.Error())
@@ -160,28 +171,36 @@ func (h *Handler) processInstaller(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) renderInstallerError(w http.ResponseWriter, msg string) {
 	slog.Error("installer", "error", msg)
 
+	uploadDir, err := AbsUploadDir("uploads/")
+	if err != nil {
+		slog.Warn("abs upload dir failed", "error", err)
+		uploadDir = "uploads/"
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	installerTmpl.ExecuteTemplate(w, "installer_base.html", map[string]any{
 		"Error":      msg,
 		"UUID":       uuid.Must(uuid.NewV7()).String(),
 		"Config":     config.Default().GetAll(),
-		"UploadDir":  absUploadDir("uploads/"),
+		"UploadDir":  uploadDir,
 		"DBTypes":    dbTypeOptions("sqlite"),
 		"RouteModes": routeModeOptions("path"),
 		"Success":    false,
 	})
 }
 
-func absUploadDir(dir string) string {
+func AbsUploadDir(dir string) (string, error) {
 	if dir == "" || dir == "." {
 		dir = "uploads"
 	}
 	if !filepath.IsAbs(dir) {
-		if a, err := filepath.Abs(dir); err == nil {
-			dir = a
+		a, err := filepath.Abs(dir)
+		if err != nil {
+			return "", err
 		}
+		dir = a
 	}
-	return dir
+	return dir, nil
 }
 
 func atoiOr(s string, fallback int) int {

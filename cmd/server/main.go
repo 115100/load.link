@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/115100/load.link/internal/config"
@@ -48,11 +47,7 @@ func run(addr, configPath string) error {
 			return err
 		}
 
-		uploadDir := cfg.Link.UploadDir
-		if uploadDir == "" || uploadDir == "." {
-			uploadDir = "uploads"
-		}
-		absUploadDir, err := filepath.Abs(uploadDir)
+		absUploadDir, err := handler.AbsUploadDir(cfg.Link.UploadDir)
 		if err != nil {
 			return err
 		}
