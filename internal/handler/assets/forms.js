@@ -13,7 +13,7 @@ function form(form) {
             if (element.checked) {
               obj[element.name] = element.classList.contains("boolean")
                 ? true
-                : encodeURIComponent(element.value);
+                : element.value;
             }
             break;
           case "url":
@@ -24,19 +24,19 @@ function form(form) {
               element.value === "" ? 0 : Number(element.value);
             break;
           default:
-            obj[element.name] = encodeURIComponent(element.value);
+            obj[element.name] = element.value;
             break;
         }
         break;
       case "TEXTAREA":
-        obj[element.name] = encodeURIComponent(element.value);
+        obj[element.name] = element.value;
         break;
       case "SELECT":
         switch (element.type) {
           case "select-multiple":
             [].forEach.call(element.options, function (option) {
               if (option.selected) {
-                obj[element.name] = encodeURIComponent(option.value);
+                obj[element.name] = option.value;
               }
             });
             break;
@@ -46,7 +46,7 @@ function form(form) {
               obj[element.name] =
                 element.value.toLowerCase() == "true" ? true : false;
             } else {
-              obj[element.name] = encodeURIComponent(element.value);
+              obj[element.name] = element.value;
             }
             break;
         }
