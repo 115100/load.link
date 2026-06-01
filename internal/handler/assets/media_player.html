@@ -1,8 +1,14 @@
 <main class="player-page">
     <div class="{{.type}} player">
-        <video id="media" controls>
-            <source src="{{.raw_url}}" type="{{.mime}}" />
+{{if eq .type "audio"}}
+        <audio id="media" controls preload="metadata">
+            <source src="{{.raw_url}}" type="{{.mime}}">
+        </audio>
+{{else}}
+        <video id="media" controls preload="metadata">
+            <source src="{{.raw_url}}" type="{{.mime}}">
         </video>
+{{end}}
     </div>
 </main>
 <footer><a href="{{.raw_url}}">RAW</a></footer>
