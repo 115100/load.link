@@ -10,6 +10,17 @@ if (gallery) {
   var gallery_cur_page = 1;
   var registered = [];
 
+  // Read initial page from URL
+  (function () {
+    var p =
+      parseInt(new URLSearchParams(window.location.search).get("page"), 10) ||
+      1;
+    if (p > 1) {
+      gallery_cur_page = p;
+      gallery_offset = (p - 1) * gallery_limit;
+    }
+  })();
+
   function api_call(action, params, cb) {
     params.action = action;
     var d = new FormData();
@@ -67,7 +78,7 @@ if (gallery) {
     );
   }
 
-  function go_to_page(page) {
+  function load_page(page) {
     gallery_cur_page = page;
     gallery_offset = (page - 1) * gallery_limit;
     gallery.innerHTML = "";
@@ -77,6 +88,12 @@ if (gallery) {
     render_pages();
     load_more();
     window.scrollTo(0, 0);
+  }
+
+  function go_to_page(page) {
+    if (page === gallery_cur_page) return;
+    load_page(page);
+    history.pushState({ page: page }, "", "?page=" + page);
   }
 
   function render_pages() {
@@ -187,6 +204,12 @@ if (gallery) {
     gallery_total.innerHTML = gallery_count = resp.count;
     render_pages();
     load_more();
+  });
+
+  // Back/forward navigation
+  window.addEventListener("popstate", function (e) {
+    var page = e.state && e.state.page ? e.state.page : 1;
+    if (page !== gallery_cur_page) load_page(page);
   });
 
   // Infinite scroll
