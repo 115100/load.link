@@ -94,7 +94,7 @@ if (gallery) {
         (cur - 1) +
         ');return false">&laquo; Prev</a> ';
     h +=
-      'Page <input type="number" min="1" max="' +
+      'Page <input type="text" inputmode="numeric" min="1" max="' +
       total +
       '" value="' +
       cur +
