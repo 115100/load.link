@@ -64,7 +64,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "get_thumbnail",
-      token: token,
       uid: response.uid,
     };
 
@@ -134,7 +133,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "upload",
-      token: token,
       filename: file.name,
     };
 
@@ -262,7 +260,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "upload",
-      token: token,
       filename: name + "." + paste_ext.value,
     };
 
@@ -347,7 +344,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "shorten_url",
-      token: token,
       url: url,
     };
 
@@ -406,7 +402,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "edit_settings",
-      token: token,
       password: current_password,
       settings: settings,
     };
@@ -451,7 +446,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "get_links",
-      token: token,
       limit: parseInt(link_history.getAttribute("data-length"), 10),
     };
 
@@ -524,7 +518,6 @@ if (document.getElementById("uploader_form")) {
 
         var headers = {
           action: "delete",
-          token: token,
           uid: element.getAttribute("data-uid"),
         };
 
@@ -562,7 +555,6 @@ if (document.getElementById("uploader_form")) {
 
     var headers = {
       action: "prune_unused",
-      token: token,
     };
 
     data.append(

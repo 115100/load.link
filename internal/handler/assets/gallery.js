@@ -42,7 +42,7 @@ if (gallery) {
 
     api_call(
       "get_links",
-      { token: token, limit: gallery_limit, offset: gallery_offset },
+      { limit: gallery_limit, offset: gallery_offset },
       function (resp) {
         gallery_loading = false;
         if (!resp.links || !resp.links.length) {
@@ -130,9 +130,9 @@ if (gallery) {
       e.preventDefault();
       if (deletion_confirmation && !confirm('Delete "' + item.name + '"?'))
         return;
-      api_call("delete", { token: token, uid: item.uid }, function () {
+      api_call("delete", { uid: item.uid }, function () {
         el.style.display = "none";
-        api_call("count", { token: token }, function (resp) {
+        api_call("count", {}, function (resp) {
           gallery_total.innerHTML = gallery_count = resp.count;
           render_pages();
         });
@@ -144,7 +144,7 @@ if (gallery) {
     if (["image/jpeg", "image/png", "image/gif"].indexOf(item.mime) >= 0) {
       api_call(
         "get_thumbnail",
-        { token: token, uid: item.uid },
+        { uid: item.uid },
         function (resp) {
           el.insertAdjacentHTML("beforeend", item_html(item, resp));
         },
@@ -192,7 +192,7 @@ if (gallery) {
   }
 
   // Bootstrap
-  api_call("count", { token: token }, function (resp) {
+  api_call("count", {}, function (resp) {
     gallery_total.innerHTML = gallery_count = resp.count;
     render_pages();
     load_more();

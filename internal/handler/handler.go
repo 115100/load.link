@@ -377,10 +377,7 @@ func (h *Handler) handleThemeCSS(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleThemeJS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
-	w.Header().Set("Cache-Control", "private, max-age=3600")
-	w.Header().Set("Vary", "Cookie")
-
-	token := h.getTokenFromRequest(r)
+	w.Header().Set("Cache-Control", "public, max-age=3600")
 
 	baseroute := "/"
 	if h.cfg != nil && h.cfg.Routing.BaseURL != "" {
@@ -409,7 +406,6 @@ func (h *Handler) handleThemeJS(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "var baseroute='%s';\n", baseroute)
 	fmt.Fprintf(&buf, "var api='%sapi';\n", baseroute)
-	fmt.Fprintf(&buf, "var token='%s';\n", token)
 	fmt.Fprintf(&buf, "var default_uploader_text='Choose or drag file here.';\n")
 	fmt.Fprintf(&buf, "var autostart_upload=%t;\n", autostart)
 	fmt.Fprintf(&buf, "var display_thumbnail=%t;\n", displayThumb)

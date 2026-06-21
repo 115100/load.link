@@ -57,25 +57,25 @@ func (h *Handler) handleAPI(w http.ResponseWriter, r *http.Request) {
 	case "get_token":
 		h.apiGetToken(w, headersData)
 	case "get_links":
-		h.apiGetLinks(w, headersData)
+		h.apiGetLinks(w, r, headersData)
 	case "count":
-		h.apiCount(w, headersData)
+		h.apiCount(w, r, headersData)
 	case "get_thumbnail":
-		h.apiGetThumbnail(w, headersData)
+		h.apiGetThumbnail(w, r, headersData)
 	case "upload":
 		h.apiUpload(w, r, headersData)
 	case "shorten_url":
 		h.apiShortenURL(w, r, headersData)
 	case "delete":
-		h.apiDelete(w, headersData)
+		h.apiDelete(w, r, headersData)
 	case "edit_settings":
-		h.apiEditSettings(w, headersData)
+		h.apiEditSettings(w, r, headersData)
 	case "release_token":
-		h.apiReleaseToken(w, headersData)
+		h.apiReleaseToken(w, r, headersData)
 	case "release_all_tokens":
-		h.apiReleaseAllTokens(w, headersData)
+		h.apiReleaseAllTokens(w, r, headersData)
 	case "prune_unused":
-		h.apiPruneUnused(w, headersData)
+		h.apiPruneUnused(w, r, headersData)
 	default:
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 	}
@@ -145,7 +145,12 @@ func (h *Handler) tryAlternativeUpload(w http.ResponseWriter, r *http.Request) b
 	return true
 }
 
-func (h *Handler) auth(w http.ResponseWriter, token string) bool {
+func (h *Handler) auth(w http.ResponseWriter, r *http.Request, token string) bool {
+	if token == "" {
+		if cookie, err := r.Cookie("token"); err == nil {
+			token = cookie.Value
+		}
+	}
 	if token == "" {
 		h.jsonResponse(w, http.StatusForbidden, map[string]string{"message": "Access Denied."})
 		return false
@@ -195,13 +200,13 @@ type apiGetLinksReq struct {
 	Offset int    `json:"offset"`
 }
 
-func (h *Handler) apiGetLinks(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiGetLinks(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiGetLinksReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -221,13 +226,13 @@ type apiTokenReq struct {
 	Token string `json:"token"`
 }
 
-func (h *Handler) apiCount(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiCount(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiTokenReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -240,13 +245,13 @@ func (h *Handler) apiCount(w http.ResponseWriter, headersData []byte) {
 	h.jsonResponse(w, http.StatusOK, map[string]any{"message": "OK.", "count": count})
 }
 
-func (h *Handler) apiReleaseToken(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiReleaseToken(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiTokenReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -254,13 +259,13 @@ func (h *Handler) apiReleaseToken(w http.ResponseWriter, headersData []byte) {
 	h.jsonResponse(w, http.StatusOK, map[string]string{"message": "OK."})
 }
 
-func (h *Handler) apiReleaseAllTokens(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiReleaseAllTokens(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiTokenReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -268,13 +273,13 @@ func (h *Handler) apiReleaseAllTokens(w http.ResponseWriter, headersData []byte)
 	h.jsonResponse(w, http.StatusOK, map[string]string{"message": "OK."})
 }
 
-func (h *Handler) apiPruneUnused(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiPruneUnused(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiTokenReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -306,13 +311,13 @@ type apiThumbnailReq struct {
 	UID   string `json:"uid"`
 }
 
-func (h *Handler) apiGetThumbnail(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiGetThumbnail(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiThumbnailReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -342,7 +347,7 @@ func (h *Handler) apiUpload(w http.ResponseWriter, r *http.Request, headersData 
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -426,7 +431,7 @@ func (h *Handler) apiShortenURL(w http.ResponseWriter, r *http.Request, headersD
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -452,13 +457,13 @@ type apiDeleteReq struct {
 	UID   string `json:"uid"`
 }
 
-func (h *Handler) apiDelete(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiDelete(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiDeleteReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 
@@ -479,13 +484,13 @@ type apiEditSettingsReq struct {
 	Settings *config.SettingsPayload `json:"settings"`
 }
 
-func (h *Handler) apiEditSettings(w http.ResponseWriter, headersData []byte) {
+func (h *Handler) apiEditSettings(w http.ResponseWriter, r *http.Request, headersData []byte) {
 	var req apiEditSettingsReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
 	}
-	if !h.auth(w, req.Token) {
+	if !h.auth(w, r, req.Token) {
 		return
 	}
 	if !h.cfg.CheckPassword(req.Password) {
