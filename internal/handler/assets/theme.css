@@ -601,6 +601,7 @@ pre#h code {
     }
 }
 
+/* settings form */
 #settings_form label {
     justify-content: space-between;
 }
@@ -614,4 +615,65 @@ pre#h code {
 #settings_form input[type="number"] {
     width: 200px;
     flex-shrink: 0;
+}
+
+/* utilities */
+.dn {
+    display: none;
+}
+
+/* message refresh link */
+.message-refresh {
+    margin-top: 10px;
+}
+
+/* paste form */
+.paste-row {
+    display: flex;
+    gap: 8px;
+}
+.paste-row.mt {
+    margin-top: 12px;
+}
+.paste-row > :is(input, select, button) {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* logout */
+.logout-label {
+    justify-content: center;
+}
+
+/* syntax highlighter page */
+.syntax-main {
+    max-width: 95%;
+}
+
+/* gallery */
+#gallery_pages {
+    text-align: center;
+    padding: 12px 0;
+}
+#gallery_pages input {
+    width: 50px;
+    text-align: center;
+    padding: 4px;
+}
+.gallery-page-marker {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 6px 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* upload message thumbnail */
+.thumb-pad {
+    padding-top: 5px;
+}
+
+/* uploader progress - hidden by default, shown by JS */
+.uploader .progress {
+    display: none;
 }

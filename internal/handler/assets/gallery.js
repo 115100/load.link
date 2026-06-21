@@ -54,7 +54,7 @@ if (gallery) {
         var latest = resp.links[0].date ? resp.links[0].date.slice(0, 10) : "";
         gallery.insertAdjacentHTML(
           "beforeend",
-          '<div class="gallery-page-marker" style="grid-column:1/-1;text-align:center;padding:6px 0;color:var(--text-muted);font-size:0.8rem">Page ' +
+          '<div class="gallery-page-marker">Page ' +
             gallery_cur_page +
             " &mdash; " +
             latest +
@@ -106,24 +106,16 @@ if (gallery) {
     var cur = gallery_cur_page;
     var h = "";
     if (cur > 1)
-      h +=
-        '<a href="#" onclick="go_to_page(' +
-        (cur - 1) +
-        ');return false">&laquo; Prev</a> ';
+      h += '<a href="#" data-page="' + (cur - 1) + '">&laquo; Prev</a> ';
     h +=
       'Page <input type="text" inputmode="numeric" min="1" max="' +
       total +
       '" value="' +
       cur +
-      '" style="width:50px;text-align:center;padding:4px" onkeydown="if(event.key===\'Enter\'){var p=parseInt(this.value);if(p>=1&&p<=' +
-      total +
-      ')go_to_page(p)}"> of ' +
+      '"> of ' +
       total;
     if (cur < total)
-      h +=
-        ' <a href="#" onclick="go_to_page(' +
-        (cur + 1) +
-        ');return false">Next &raquo;</a>';
+      h += ' <a href="#" data-page="' + (cur + 1) + '">Next &raquo;</a>';
     gallery_pages.innerHTML = h;
   }
 
@@ -221,6 +213,28 @@ if (gallery) {
       ) {
         load_more();
       }
+    }
+  });
+
+  // Pagination controls (delegated)
+  gallery_pages.addEventListener("click", function (e) {
+    e.preventDefault();
+    var page = parseInt(e.target.getAttribute("data-page"), 10);
+    if (page) go_to_page(page);
+  });
+  gallery_pages.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var total = Math.ceil(gallery_count / gallery_limit);
+      var p = parseInt(e.target.value, 10);
+      if (p >= 1 && p <= total) go_to_page(p);
+    }
+  });
+
+  // Scroll-to-top link
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("js-scroll-top")) {
+      e.preventDefault();
+      window.scroll(0, 0);
     }
   });
 }

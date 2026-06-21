@@ -98,7 +98,7 @@ if (document.getElementById("uploader_form")) {
               'title="' +
               response.name +
               '" target="_blank">' +
-              '<div style="padding-top: 5px;">' +
+              '<div class="thumb-pad">' +
               "<img " +
               'width="' +
               width +
@@ -596,4 +596,11 @@ if (document.getElementById("uploader_form")) {
   }
 
   update_history();
+
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("js-prune")) {
+      e.preventDefault();
+      prune_unused();
+    }
+  });
 }

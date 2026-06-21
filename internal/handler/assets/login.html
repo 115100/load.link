@@ -1,9 +1,24 @@
-
 <div>
-	<h3>Login</h3>
-	<form method="post" action="{{.login_path}}">
-		<label><input name="login[username]" type="text" value="{{.config.login.username}}" required> Username</label>
-		<label><input name="login[password]" type="password" placeholder="Enter password" required> Password</label>
-		<div class="center" style="margin-top: 12px;"><button type="submit">Login</button></div>
-	</form>
+    <h3>Login</h3>
+    <form method="post" action="{{.login_path}}">
+        <label
+            ><input
+                name="login[username]"
+                type="text"
+                value="{{.config.login.username}}"
+                required
+            />
+            Username</label
+        >
+        <label
+            ><input
+                name="login[password]"
+                type="password"
+                placeholder="Enter password"
+                required
+            />
+            Password</label
+        >
+        <div class="center"><button type="submit">Login</button></div>
+    </form>
 </div>

@@ -1,7 +1,8 @@
-
 <div class="message {{.name}}">
-	<div>{{.message}}</div>
-{{if .refreshable}}
-	<div style="margin-top: 10px;"><a href="javascript: refresh();">Refresh</a></div>
-{{end}}
+    <div>{{.message}}</div>
+    {{if .refreshable}}
+    <div class="message-refresh">
+        <a href="#" class="js-refresh">Refresh</a>
+    </div>
+    {{end}}
 </div>

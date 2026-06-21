@@ -1,14 +1,14 @@
-{{if .Error}}<div class="message error warning"><b>Error:</b> {{.Error}}<br><br><a href="javascript:document.location.reload(true);">Reload</a></div>{{end}}
+{{if .Error}}<div class="message error warning"><b>Error:</b> {{.Error}}<br><br><a href="#" class="js-reload">Reload</a></div>{{end}}
 {{if .Success}}<div class="message notice"><b>Installed. Redirecting...</b><br><br><a href="{{.PanelPath}}">Click here if not redirected.</a></div>{{end}}
 
-<form method="post" action=""{{if .Success}} style="display: none;"{{end}}>
+<form method="post" action=""{{if .Success}} class="dn"{{end}}>
     <div class="hideable hidden">
         <h3 class="hider">Advanced Configuration</h3>
         <div>
             <input name="uuid" type="hidden" value="{{.UUID}}">
             <label><select name="database[type]" id="database_type">{{.DBTypes}}</select> Database type.</label><br>
             <label><input name="database[name]" type="text" id="database_name" value="{{index .Config "database" "name"}}"> Database name.</label><br>
-            <div id="database_conf" style="display: none">
+            <div id="database_conf">
                 <label><input name="database[host]" type="text" value="{{index .Config "database" "host"}}"> Database host.</label><br>
                 <label><input name="database[port]" type="number" placeholder="default" value="{{index .Config "database" "port"}}"> Database port.</label><br>
                 <label><input name="database[username]" type="text" value="{{index .Config "database" "username"}}"> Database username.</label><br>
