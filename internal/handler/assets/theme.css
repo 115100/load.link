@@ -652,8 +652,10 @@ pre#h code {
 
 /* gallery */
 #gallery_searchbar {
-    text-align: center;
-    padding: 14px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 0;
 }
 #gallery_search {
     width: 320px;
