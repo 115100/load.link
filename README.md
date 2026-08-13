@@ -52,7 +52,9 @@ HTTP Status Code: **403**
 
 ## get_links
 
-Get \<LIMIT\> links starting from \<OFFSET\>.
+Get \<LIMIT\> links starting from \<OFFSET\>, optionally filtered by
+\<SEARCH\>. The search is a case-insensitive substring match against the
+item's name, extension and MIME type; omit the field to list everything.
 
 #### REQUEST
 
@@ -60,6 +62,7 @@ Get \<LIMIT\> links starting from \<OFFSET\>.
 { "action": "get_links",
   "limit": "<LIMIT>",
   "offset": "<OFFSET>",
+  "search": "<SEARCH>",
   "token": "<YOUR_AUTHENTICATION_TOKEN>" }
 ```
 
@@ -80,12 +83,14 @@ HTTP Status Code: **200**
 
 ## count
 
-Get the \<TOTAL\> number of items.
+Get the \<TOTAL\> number of items. Pass the optional \<SEARCH\> field (same
+matching rules as [get_links](#get_links)) to count only matching items.
 
 #### REQUEST
 
 ```
 { "action": "count",
+  "search": "<SEARCH>",
   "token": "<YOUR_AUTHENTICATION_TOKEN>" }
 ```
 

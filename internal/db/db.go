@@ -248,11 +248,44 @@ func (db *DB) GetLink(uid string) (*Link, error) {
 	return &link, nil
 }
 
-// GetLinks retrieves links with optional pagination.
-func (db *DB) GetLinks(limit, offset int) ([]Link, error) {
-	query := "SELECT uid, path, name, ext, mime, date FROM links ORDER BY date DESC"
+// searchWhere returns the WHERE clause fragment and the LIKE pattern
+// arguments for a case-insensitive search across name, extension and MIME
+// type. An empty (or blank) search yields no filter.
+func (db *DB) searchWhere(search string) (string, []string) {
+	search = strings.TrimSpace(search)
+	if search == "" {
+		return "", nil
+	}
+	// Escape LIKE wildcards so user input matches literally.
+	escaped := strings.NewReplacer(
+		`\`, `\\`,
+		`%`, `\%`,
+		`_`, `\_`,
+	).Replace(search)
+	pattern := "%" + escaped + "%"
+	where := "WHERE LOWER(name) LIKE LOWER(?) ESCAPE '\\' " +
+		"OR LOWER(ext) LIKE LOWER(?) ESCAPE '\\' " +
+		"OR LOWER(mime) LIKE LOWER(?) ESCAPE '\\'"
+	return where, []string{pattern, pattern, pattern}
+}
+
+// GetLinks retrieves links with optional pagination, optionally filtered by a
+// case-insensitive search across name, extension and MIME type.
+func (db *DB) GetLinks(limit, offset int, search string) ([]Link, error) {
+	query := "SELECT uid, path, name, ext, mime, date FROM links"
 
 	var args []any
+	if search != "" {
+		where, whereArgs := db.searchWhere(search)
+		if where != "" {
+			query += " " + where
+			for _, arg := range whereArgs {
+				args = append(args, arg)
+			}
+		}
+	}
+	query += " ORDER BY date DESC"
+
 	if limit > 0 {
 		query += " LIMIT ?"
 		args = append(args, limit)
@@ -279,12 +312,24 @@ func (db *DB) GetLinks(limit, offset int) ([]Link, error) {
 	return links, rows.Err()
 }
 
-// CountLinks returns the total number of links.
-func (db *DB) CountLinks() (int, error) {
+// CountLinks returns the total number of links, optionally filtered by a
+// case-insensitive search across name, extension and MIME type.
+func (db *DB) CountLinks(search string) (int, error) {
+	query := "SELECT COUNT(*) FROM links"
+
+	var args []any
+	if search != "" {
+		where, whereArgs := db.searchWhere(search)
+		if where != "" {
+			query += " " + where
+			for _, arg := range whereArgs {
+				args = append(args, arg)
+			}
+		}
+	}
+
 	var count int
-	err := db.conn.QueryRow(
-		db.rebind("SELECT COUNT(*) FROM links"),
-	).Scan(&count)
+	err := db.conn.QueryRow(db.rebind(query), args...).Scan(&count)
 	return count, err
 }
 
@@ -306,7 +351,7 @@ func (db *DB) DelLink(uid string) error {
 
 // GetLinksAll returns all links (for prune operation).
 func (db *DB) GetLinksAll() ([]Link, error) {
-	return db.GetLinks(0, 0)
+	return db.GetLinks(0, 0, "")
 }
 
 // StoreThumbnail stores a thumbnail in the database.

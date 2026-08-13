@@ -651,6 +651,31 @@ pre#h code {
 }
 
 /* gallery */
+#gallery_searchbar {
+    text-align: center;
+    padding: 14px 0 0;
+}
+#gallery_search {
+    width: 320px;
+    max-width: 90%;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.95rem;
+}
+#gallery_search:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.gallery-empty {
+    grid-column: 1 / -1;
+    padding: 40px 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
 #gallery_pages {
     text-align: center;
     padding: 12px 0;

@@ -799,6 +799,154 @@ func TestAPIGetLinks_Pagination(t *testing.T) {
 	}
 }
 
+func TestAPIGetLinks_Search(t *testing.T) {
+	ts := newTestServer(t)
+	token := ts.getToken(t)
+
+	ts.upload(t, token, "annual-report.pdf", "pdf")
+	ts.upload(t, token, "photo.png", string(tinyPNG))
+	ts.upload(t, token, "notes.txt", "txt")
+	ts.upload(t, token, "REPORT-final.pdf", "pdf")
+
+	// Case-insensitive substring search on the name.
+	resp, err := ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "report",
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links search failed: %v", err)
+	}
+	var result apiLinksResponse
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 2 {
+		t.Fatalf("expected 2 links matching %q, got %d", "report", len(result.Links))
+	}
+	names := map[string]bool{}
+	for _, l := range result.Links {
+		names[l.Name] = true
+	}
+	if !names["annual-report.pdf"] || !names["REPORT-final.pdf"] {
+		t.Errorf("unexpected name matches: %v", names)
+	}
+
+	// Search also matches the MIME type.
+	resp, err = ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "image/png",
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links mime search failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 1 || result.Links[0].Name != "photo.png" {
+		t.Errorf("expected only photo.png, got %d links", len(result.Links))
+	}
+
+	// No matches.
+	resp, err = ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "zzz-nothing",
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links empty search failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 0 {
+		t.Errorf("expected 0 links, got %d", len(result.Links))
+	}
+
+	// Empty search keeps old behavior: everything is returned.
+	resp, err = ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "",
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links unfiltered failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 4 {
+		t.Errorf("expected 4 links, got %d", len(result.Links))
+	}
+
+	// Search combined with pagination.
+	resp, err = ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "pdf",
+		"limit":  1,
+		"offset": 0,
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links paginated search failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 1 {
+		t.Errorf("expected 1 link, got %d", len(result.Links))
+	}
+	resp, err = ts.apiPost(map[string]any{
+		"action": "get_links",
+		"token":  token,
+		"search": "pdf",
+		"limit":  1,
+		"offset": 1,
+	}, nil)
+	if err != nil {
+		t.Fatalf("get_links paginated search page 2 failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+	resp.Body.Close()
+	if len(result.Links) != 1 {
+		t.Errorf("expected 1 link on page 2, got %d", len(result.Links))
+	}
+}
+
+func TestAPICount_Search(t *testing.T) {
+	ts := newTestServer(t)
+	token := ts.getToken(t)
+
+	ts.upload(t, token, "cat.jpg", "jpeg")
+	ts.upload(t, token, "dog.png", string(tinyPNG))
+	ts.upload(t, token, "cat-notes.txt", "txt")
+
+	resp, err := ts.apiPost(map[string]any{
+		"action": "count",
+		"token":  token,
+		"search": "cat",
+	}, nil)
+	if err != nil {
+		t.Fatalf("count search failed: %v", err)
+	}
+	var cr apiCountResponse
+	json.NewDecoder(resp.Body).Decode(&cr)
+	resp.Body.Close()
+	if cr.Count != 2 {
+		t.Errorf("expected count 2 for %q, got %d", "cat", cr.Count)
+	}
+
+	// Unfiltered count is unaffected.
+	resp, err = ts.apiPost(map[string]any{
+		"action": "count",
+		"token":  token,
+	}, nil)
+	if err != nil {
+		t.Fatalf("count failed: %v", err)
+	}
+	json.NewDecoder(resp.Body).Decode(&cr)
+	resp.Body.Close()
+	if cr.Count != 3 {
+		t.Errorf("expected count 3, got %d", cr.Count)
+	}
+}
+
 func TestAPIUpload_SameName(t *testing.T) {
 	ts := newTestServer(t)
 	token := ts.getToken(t)

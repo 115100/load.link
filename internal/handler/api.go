@@ -198,6 +198,7 @@ type apiGetLinksReq struct {
 	Token  string `json:"token"`
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
+	Search string `json:"search"`
 }
 
 func (h *Handler) apiGetLinks(w http.ResponseWriter, r *http.Request, headersData []byte) {
@@ -210,7 +211,7 @@ func (h *Handler) apiGetLinks(w http.ResponseWriter, r *http.Request, headersDat
 		return
 	}
 
-	links, err := h.db.GetLinks(req.Limit, req.Offset)
+	links, err := h.db.GetLinks(req.Limit, req.Offset, req.Search)
 	if err != nil {
 		h.jsonError(w, http.StatusInternalServerError, "Failed to get links.")
 		return
@@ -226,8 +227,13 @@ type apiTokenReq struct {
 	Token string `json:"token"`
 }
 
+type apiCountReq struct {
+	Token  string `json:"token"`
+	Search string `json:"search"`
+}
+
 func (h *Handler) apiCount(w http.ResponseWriter, r *http.Request, headersData []byte) {
-	var req apiTokenReq
+	var req apiCountReq
 	if err := json.Unmarshal(headersData, &req); err != nil {
 		h.jsonError(w, http.StatusBadRequest, "Badly Formatted Request.")
 		return
@@ -236,7 +242,7 @@ func (h *Handler) apiCount(w http.ResponseWriter, r *http.Request, headersData [
 		return
 	}
 
-	count, err := h.db.CountLinks()
+	count, err := h.db.CountLinks(req.Search)
 	if err != nil {
 		h.jsonError(w, http.StatusInternalServerError, "Failed to count links.")
 		return
