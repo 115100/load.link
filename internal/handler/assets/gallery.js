@@ -41,13 +41,18 @@ if (gallery) {
     x.send(d);
   }
 
-  // Build the URL for the current page and search state.
+  // Build the full URL for the current page and search state. The path is
+  // always included so that pushState with no parameters clears the query
+  // string instead of keeping the current URL.
   function gallery_url(page) {
     var parts = [];
     if (gallery_query)
       parts.push("q=" + encodeURIComponent(gallery_query));
     if (page > 1) parts.push("page=" + page);
-    return parts.length ? "?" + parts.join("&") : "";
+    return (
+      window.location.pathname +
+      (parts.length ? "?" + parts.join("&") : "")
+    );
   }
 
   function esc_html(s) {
