@@ -1,7 +1,5 @@
 tmp/
 lib/
-internal/handler/assets/delfticons/
-internal/handler/assets/prismjs/
 uploads/
 vendor/
 .cache
